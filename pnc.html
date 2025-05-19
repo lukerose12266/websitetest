@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PNC – North Wales</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    /* Basic Styles */
+    body {
+      background-color: #f4f6f9;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      transition: background-color 0.3s;
+    }
+    /* Header and Navigation */
+    header {
+      background-color: #012c22;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    nav a {
+      color: white;
+      margin-right: 1rem;
+      text-decoration: none;
+    }
+    nav a.active {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+    /* Search and Results Layout */
+    .search-bar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      justify-content: space-between;
+    }
+    .search-bar input {
+      padding: 0.75rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      flex: 1;
+    }
+    .search-bar button {
+      background-color: #02735e;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .search-bar select {
+      padding: 0.75rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    /* Results Layout */
+    .pnc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1rem;
+      margin: 2rem;
+    }
+    .pnc-card {
+      background-color: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      transition: transform 0.2s;
+      cursor: pointer;
+    }
+    .pnc-card:hover {
+      transform: scale(1.02);
+    }
+    .pnc-card i {
+      font-size: 1.5rem;
+      color: #03a97c;
+    }
+    /* Modal for Preview */
+    .modal.hidden {
+      display: none;
+    }
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+      position: relative;
+    }
+    .modal-content .close {
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+
+    
+    /* Pagination Styling */
+    .pagination {
+      text-align: center;
+      margin-top: 1rem;
+    }
+    .pagination button {
+      padding: 0.5rem 1rem;
+      margin: 0.5rem;
+      background-color: #02735e;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">North Wales</div>
+    <nav>
+      <a href="index.html">Dashboard</a>
+      <a href="#" class="active">PNC</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Police National Computer</h1>
+
+    <!-- Search Bar with Filters -->
+    <div class="search-bar">
+      <input type="text" id="personSearch" placeholder="Enter name, DOB or ID...">
+      <select id="ageRange">
+        <option value="">Age Range</option>
+        <option value="18-25">18-25</option>
+        <option value="26-35">26-35</option>
+        <option value="36-45">36-45</option>
+        <option value="46-60">46-60</option>
+      </select>
+      <select id="genderFilter">
+        <option value="">Gender</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+      </select>
+      <select id="locationFilter">
+        <option value="">Location</option>
+        <option value="North">North</option>
+        <option value="South">South</option>
+      </select>
+      <button onclick="searchPerson()">Search</button>
+    </div>
+
+    <!-- Results Grid -->
+    <div class="pnc-grid" id="searchResults">
+      <!-- Results will be dynamically populated here -->
+    </div>
+
+    <!-- Modal for Detailed View -->
+    <div id="modal" class="modal hidden">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2 id="modal-title">Detailed Info</h2>
+        <p id="modal-desc">Loading details...</p>
+      </div>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="pagination" id="paginationControls">
+      <!-- Pagination buttons will be dynamically generated here -->
+    </div>
+
+
+
+  </main>
+
+  <script>
+    let currentPage = 1;
+    const resultsPerPage = 10;
+
+
+    // Simulating a search and displaying results (in a real app, this would be fetched from a database)
+    const allSearchResults = [
+      { name: 'John Doe', age: 30, gender: 'Male', location: 'North', criminalStatus: 'Warrant', id: 1 },
+      { name: 'Jane Smith', age: 25, gender: 'Female', location: 'South', criminalStatus: 'Clean', id: 2 },
+      { name: 'Sam Brown', age: 40, gender: 'Male', location: 'North', criminalStatus: 'Warrant', id: 3 },
+      // More results here...
+    ];
+
+    function searchPerson() {
+      const query = document.getElementById("personSearch").value.trim();
+      const ageRange = document.getElementById("ageRange").value;
+      const gender = document.getElementById("genderFilter").value;
+      const location = document.getElementById("locationFilter").value;
+
+      const filteredResults = allSearchResults.filter(person => {
+        return (
+          (query === "" || person.name.includes(query) || person.id.toString().includes(query)) &&
+          (ageRange === "" || (person.age >= parseInt(ageRange.split('-')[0]) && person.age <= parseInt(ageRange.split('-')[1]))) &&
+          (gender === "" || person.gender === gender) &&
+          (location === "" || person.location === location)
+        );
+      });
+
+      displayResults(filteredResults);
+    }
+
+    function displayResults(results) {
+      const startIdx = (currentPage - 1) * resultsPerPage;
+      const paginatedResults = results.slice(startIdx, startIdx + resultsPerPage);
+      const resultsContainer = document.getElementById("searchResults");
+      resultsContainer.innerHTML = "";
+      paginatedResults.forEach(result => {
+        const resultCard = document.createElement("div");
+        resultCard.classList.add("pnc-card");
+        resultCard.innerHTML = `
+          <i class="fa-solid fa-user"></i>
+          <strong>${result.name}</strong>
+          <p>Age: ${result.age}</p>
+          <p>Gender: ${result.gender}</p>
+          <p>Location: ${result.location}</p>
+          <p>Status: ${result.criminalStatus}</p>
+        `;
+        resultCard.onclick = () => showModal(result);
+        resultsContainer.appendChild(resultCard);
+      });
+      setupPagination(results.length);
+    }
+
+    function showModal(person) {
+      document.getElementById("modal-title").innerText = person.name;
+      document.getElementById("modal-desc").innerText = `Details for ${person.name}: Age: ${person.age}, Gender: ${person.gender}, Location: ${person.location}, Criminal Status: ${person.criminalStatus}`;
+      document.getElementById("modal").classList.remove("hidden");
+    }
+
+    function closeModal() {
+      document.getElementById("modal").classList.add("hidden");
+    }
+
+    function setupPagination(totalResults) {
+      const totalPages = Math.ceil(totalResults / resultsPerPage);
+      const paginationControls = document.getElementById("paginationControls");
+      paginationControls.innerHTML = "";
+      for (let i = 1; i <= totalPages; i++) {
+        const pageButton = document.createElement("button");
+        pageButton.innerText = i;
+        pageButton.onclick = () => {
+          currentPage = i;
+          searchPerson();
+        };
+        paginationControls.appendChild(pageButton);
+      }
+    }
+
+    // Initial search display
+    searchPerson();
+  </script>
+</body>
+</html>

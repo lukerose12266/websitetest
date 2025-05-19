@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Welcome – North Wales</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"> <!-- Google Font -->
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #012c22, #014c38);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: white;
+      text-align: center;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .welcome-container {
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 15px;
+      padding: 40px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    .welcome-container h1 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      font-weight: 700;
+      color: #00ffcc;
+      letter-spacing: 2px;
+      line-height: 1.2;
+    }
+
+    .welcome-container h1 span {
+      color: #ffffff;
+    }
+
+    .welcome-container p {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+      color: #ddd;
+    }
+
+    .btn {
+      background-color: #038b5b;
+      color: white;
+      padding: 1rem 2.5rem;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s, transform 0.2s;
+      text-decoration: none;
+      display: inline-block;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn:hover {
+      background-color: #04b06c;
+      transform: translateY(-4px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+      background-color: #038b5b;
+    }
+
+    #roblox-popup {
+      display: none;
+      margin-top: 30px;
+      background-color: rgba(0, 0, 0, 0.7);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    #roblox-popup input {
+      padding: 0.8rem;
+      border-radius: 8px;
+      border: none;
+      margin-bottom: 15px;
+      width: 100%;
+      font-size: 1rem;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+
+    #roblox-popup input:focus {
+      border: 2px solid #00ffcc;
+    }
+
+    #roblox-popup button {
+      background-color: #038b5b;
+      color: white;
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      transition: background-color 0.3s;
+    }
+
+    #roblox-popup button:hover {
+      background-color: #04b06c;
+    }
+
+    #roblox-msg {
+      color: #ff5555;
+      margin-top: 15px;
+      font-size: 1rem;
+      padding: 10px;
+      border-radius: 8px;
+      background-color: rgba(255, 85, 85, 0.2);
+      display: none;
+    }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(50px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="welcome-container">
+    <h1><span>North</span><span>Wales</span></h1>
+    <p>Welsh Roleplaying Server - Sign in to join us!</p>
+
+    <button id="roblox-login-btn" class="btn">Sign in with Roblox</button>
+
+    <div id="roblox-popup">
+      <p>Please enter your Roblox username:</p>
+      <input type="text" id="roblox-username" placeholder="Roblox Username" />
+      <button class="btn" id="verify-roblox-btn">Verify</button>
+      <p id="roblox-msg"></p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("roblox-login-btn").addEventListener("click", function () {
+      document.getElementById("roblox-popup").style.display = "block";
+    });
+
+    document.getElementById("verify-roblox-btn").addEventListener("click", function () {
+      const username = document.getElementById("roblox-username").value.trim();
+      if (!username) {
+        document.getElementById("roblox-msg").textContent = "Username required.";
+        document.getElementById("roblox-msg").style.display = "block";
+        return;
+      }
+
+      const code = "12345"; 
+      localStorage.setItem("robloxVerifyCode", code);
+      localStorage.setItem("robloxUsername", username);
+
+      document.getElementById("roblox-msg").innerHTML = `
+        Your verification code is <b>${code}</b><br/>
+        Join the Roblox game and enter this code in the chat.<br/>
+        <a href="https://www.roblox.com/games/108865629592306" target="_blank">Launch Roblox Game</a>
+      `;
+      document.getElementById("roblox-msg").style.display = "block";
+
+      setTimeout(() => {
+        const verified = confirm("Did you enter the code in the Roblox game?");
+        if (verified) {
+          window.location.href = "index.html";
+        } else {
+          alert("Please try again.");
+        }
+      }, 10000); 
+    });
+  </script>
+
+</body>
+</html>
